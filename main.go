@@ -1,19 +1,33 @@
 package main
 
 import (
-	"fmt"
+	"HBVocabulary/config"
+	"HBVocabulary/internal/handler"
+	"HBVocabulary/internal/model"
 	"log"
-	"os"
-
-	"github.com/joho/godotenv"
 )
 
-func main() {
-	fmt.Println("hello world")
-	err := godotenv.Load("etc/.env")
+func init() {
+	var err error
+	config.Conf, err = config.LoadConfig("./etc/.env")
 	if err != nil {
-		log.Fatal("error loading .env file")
+		log.Fatal("cannot load config: ", err)
 	}
 
-	fmt.Println(os.Getenv("DB_HOST"))
+	model.DB, err = model.InitDB()
+	if err != nil {
+		log.Fatal("cannot connect to DB: ", err)
+	}
+}
+
+func main() {
+	server, err := handler.NewServer(config.Conf, model.DB)
+	if err != nil {
+		log.Fatal("cannot create http server: ", err)
+	}
+
+	err = server.Start(config.Conf.HTTPServerAddress)
+	if err != nil {
+		log.Fatal("cannot start server: ", err)
+	}
 }
