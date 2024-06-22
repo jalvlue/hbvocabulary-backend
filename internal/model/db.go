@@ -1,7 +1,7 @@
 package model
 
 import (
-	"HBVocabulary/config"
+	"log"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -9,7 +9,18 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() (*gorm.DB, error) {
-	dsn := config.Conf.DBSource
-	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
+type Store struct {
+	db *gorm.DB
+}
+
+func NewStore(db *gorm.DB) *Store {
+	return &Store{db}
+}
+
+func InitDB(dsn string) {
+	var err error
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("cannot connect to database")
+	}
 }

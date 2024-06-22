@@ -17,9 +17,9 @@ type Config struct {
 	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_EXPIRY"`
 }
 
-func LoadConfig(filename string) (*Config, error) {
-	log.Println(filename)
-	viper.SetConfigFile(filename)
+func loadConfig() (*Config, error) {
+	viper.AddConfigPath(".")
+	viper.SetConfigFile(".env")
 
 	var config Config
 	err := viper.ReadInConfig()
@@ -30,4 +30,12 @@ func LoadConfig(filename string) (*Config, error) {
 
 	err = viper.Unmarshal(&config)
 	return &config, err
+}
+
+func InitConfig() {
+	var err error
+	Conf, err = loadConfig()
+	if err != nil {
+		log.Fatal("cannot load config: ", err)
+	}
 }

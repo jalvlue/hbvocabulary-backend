@@ -8,20 +8,12 @@ import (
 )
 
 func init() {
-	var err error
-	config.Conf, err = config.LoadConfig("./etc/.env")
-	if err != nil {
-		log.Fatal("cannot load config: ", err)
-	}
-
-	model.DB, err = model.InitDB()
-	if err != nil {
-		log.Fatal("cannot connect to DB: ", err)
-	}
+	config.InitConfig()
+	model.InitDB(config.Conf.DBSource)
 }
 
 func main() {
-	server, err := handler.NewServer(config.Conf, model.DB)
+	server, err := handler.NewServer(config.Conf, model.NewStore(model.DB))
 	if err != nil {
 		log.Fatal("cannot create http server: ", err)
 	}
