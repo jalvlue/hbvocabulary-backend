@@ -5,11 +5,13 @@ import (
 	"HBVocabulary/internal/handler"
 	"HBVocabulary/internal/model"
 	"log"
+	"os"
 )
 
 func init() {
 	config.InitConfig()
-	model.InitDB(config.Conf.DBSource)
+	// model.InitDB(config.Conf.DBSource)
+	model.InitDB(os.Getenv("DB_SOURCE"))
 }
 
 func main() {

@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  mysql:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+    volumes:
+      - ./internal/sql/migrate.sql:/docker-entrypoint-initdb.d/init.sql
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_SOURCE=root:123456@tcp(mysql:3306)/db_course_design?charset=utf8mb4&parseTime=True&loc=Local
+    depends_on:
+      - mysql
+    command: [ "/app/main" ]
