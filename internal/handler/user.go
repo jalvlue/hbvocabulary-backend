@@ -16,6 +16,7 @@ type createUserRequest struct {
 }
 
 type createUserResponse struct {
+	Code      string    `json:"code"`
 	Username  string    `json:"username"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -40,6 +41,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, createUserResponse{
+		Code:      "success",
 		Username:  user.Username,
 		CreatedAt: user.CreatedAt,
 	})
@@ -51,6 +53,7 @@ type loginUserRequest struct {
 }
 
 type loginUserResponse struct {
+	Code                string    `json:"code"`
 	Username            string    `json:"username"`
 	AccessToken         string    `json:"access_token"`
 	AccessTokenExpireAt time.Time `json:"access_token_expire_at"`
@@ -76,6 +79,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, loginUserResponse{
+		Code:                "success",
 		Username:            user.Username,
 		AccessToken:         accessToken,
 		AccessTokenExpireAt: accessPayload.ExpiredAt,
@@ -83,6 +87,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 }
 
 type InfoUserResponse struct {
+	Code      string    `json:"code"`
 	Username  string    `json:"username"`
 	TestCount int       `json:"test_count"`
 	MaxScore  int       `json:"max_score"`
@@ -98,6 +103,7 @@ func (server *Server) infoUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, InfoUserResponse{
+		Code:      "success",
 		Username:  user.Username,
 		TestCount: user.TestCount,
 		MaxScore:  user.MaxScore,
