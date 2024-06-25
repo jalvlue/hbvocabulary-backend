@@ -41,13 +41,18 @@ func (server *Server) setupRouter() {
 		ctx.String(http.StatusOK, "hello hbvocabulary")
 	})
 
-	v1 := router.Group("/user")
-	v1.POST("/login", server.loginUser)
-	v1.POST("/register", server.createUser)
+	userAPI := router.Group("/user")
+	userAPI.POST("/login", server.loginUser)
+	userAPI.POST("/register", server.createUser)
 	// auth route /user/info
-	v1.Group("/info", authMiddleware(server.tokenMaker)).GET("", server.infoUser)
+	userAPI.Group("/info", authMiddleware(server.tokenMaker)).GET("", server.infoUser)
+	userAPI.Group("/grade", authMiddleware(server.tokenMaker)).POST("", server.setGradesUser)
 
-	// v2 := router.Group("/word")
+	wordAPI := router.Group("/word")
+	wordAPI.Use(authMiddleware(server.tokenMaker))
+	wordAPI.GET("/roundOne", server.getWordListRoundOne)
+	wordAPI.POST("/roundTwo", server.getWordListRoundTwo)
+	wordAPI.POST("/getResult", server.getResult)
 
 	server.router = router
 }

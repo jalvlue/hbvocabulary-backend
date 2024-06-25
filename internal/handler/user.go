@@ -71,6 +71,12 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, common.ErrorResponse(err))
 		return
 	}
+	if user.Password != req.Password {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error": "invalid password",
+		})
+		return
+	}
 
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(user.Username, server.config.AccessTokenDuration)
 	if err != nil {
@@ -91,6 +97,8 @@ type InfoUserResponse struct {
 	Username  string    `json:"username"`
 	TestCount int       `json:"test_count"`
 	MaxScore  int       `json:"max_score"`
+	FourScore int       `json:"four_score"`
+	SixScore  int       `json:"six_score"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -107,6 +115,37 @@ func (server *Server) infoUser(ctx *gin.Context) {
 		Username:  user.Username,
 		TestCount: user.TestCount,
 		MaxScore:  user.MaxScore,
+		FourScore: user.FourScore,
+		SixScore:  user.SixScore,
 		CreatedAt: user.CreatedAt,
+	})
+}
+
+type SetGradesRequest struct {
+	FourGrade int `json:"four"`
+	SixGrade  int `json:"six"`
+}
+
+func (server *Server) setGradesUser(ctx *gin.Context) {
+	var reqSetGrade SetGradesRequest
+	if err := ctx.ShouldBindJSON(&reqSetGrade); err != nil {
+		ctx.JSON(http.StatusBadRequest, common.ErrorResponse(err))
+	}
+
+	payload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	user, err := server.store.GetUserByUsername(payload.Username)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, common.ErrorResponse(err))
+		return
+	}
+
+	err = server.store.SetGrades(user, reqSetGrade.FourGrade, reqSetGrade.SixGrade)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, common.ErrorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": "success",
 	})
 }
