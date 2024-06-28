@@ -5,6 +5,7 @@ import (
 	"HBVocabulary/internal/model"
 	"HBVocabulary/token"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -122,8 +123,8 @@ func (server *Server) infoUser(ctx *gin.Context) {
 }
 
 type SetGradesRequest struct {
-	FourGrade int `json:"four"`
-	SixGrade  int `json:"six"`
+	FourGrade string `json:"four"`
+	SixGrade  string `json:"six"`
 }
 
 func (server *Server) setGradesUser(ctx *gin.Context) {
@@ -139,7 +140,17 @@ func (server *Server) setGradesUser(ctx *gin.Context) {
 		return
 	}
 
-	err = server.store.SetGrades(user, reqSetGrade.FourGrade, reqSetGrade.SixGrade)
+	four, err := strconv.Atoi(reqSetGrade.FourGrade)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, common.ErrorResponse(err))
+		return
+	}
+	six, err := strconv.Atoi(reqSetGrade.SixGrade)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, common.ErrorResponse(err))
+		return
+	}
+	err = server.store.SetGrades(user, four, six)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, common.ErrorResponse(err))
 		return
